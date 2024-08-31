@@ -1,6 +1,4 @@
-[package]
-name = "RustTier"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = ["protocal/ping", "rust_tier"]
 
-[dependencies]
+[workspace.dependencies]

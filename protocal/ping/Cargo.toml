@@ -1,0 +1,23 @@
+[package]
+name = "ping"
+edition = "2021"
+description = "Ping protocol for libp2p"
+version = "0.45.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+license = "MIT"
+repository = "https://github.com/libp2p/rust-libp2p"
+keywords = ["peer-to-peer", "libp2p", "networking"]
+categories = ["network-programming", "asynchronous"]
+
+[dependencies]
+either = "1.11.0"
+futures = { version = "*" }
+futures-timer = "3.0.3"
+web-time = { version = "*" }
+libp2p-core = { version = "*" }
+libp2p-swarm = { version = "*" }
+libp2p-identity = { version = "*" }
+rand = "0.8"
+tracing = { version = "*" }
+void = "1.0"
+async-std = "1.12.0"
