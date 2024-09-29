@@ -7,10 +7,9 @@ edition = "2021"
 futures = "0.3.30"
 libp2p = { version = "0.54.1", features = [
     "noise",
-    # "ping",
+    "ping",
     "tcp",
     "tokio",
     "yamux",
 ] }
 tokio = { version = "1.39.3", features = ["full"] }
-ping = { path = "../protocal/ping" }

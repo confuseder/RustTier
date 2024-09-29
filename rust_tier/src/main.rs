@@ -1,12 +1,9 @@
-use futures::prelude::*;
-use libp2p::{noise, swarm::SwarmEvent, tcp, yamux, Multiaddr};
+use futures::StreamExt;
+use libp2p::{noise, ping, swarm::SwarmEvent, tcp, yamux, Multiaddr};
 use std::{error::Error, time::Duration};
-
-use ping;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
@@ -18,12 +15,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_swarm_config(|cfg| cfg.with_idle_connection_timeout(Duration::from_secs(u64::MAX)))
         .build();
 
-    // Tell the swarm to listen on all interfaces and a random, OS-assigned
-    // port.
     swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
 
-    // Dial the peer identified by the multi-address given as the second
-    // command-line argument, if any.
     if let Some(addr) = std::env::args().nth(1) {
         let remote: Multiaddr = addr.parse()?;
         swarm.dial(remote)?;
@@ -34,6 +27,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         match swarm.select_next_some().await {
             SwarmEvent::NewListenAddr { address, .. } => println!("Listening on {address:?}"),
             SwarmEvent::Behaviour(event) => println!("{event:?}"),
+            SwarmEvent::ConnectionEstablished {
+                peer_id,
+                connection_id,
+                endpoint,
+                ..
+            } => {
+                println!("{peer_id:?} {connection_id:?} {endpoint:?}");
+            },
             _ => {}
         }
     }

@@ -1,4 +1,3 @@
 [workspace]
-members = ["protocal/ping", "rust_tier"]
-
-[workspace.dependencies]
+resolver = "2"
+members = ["rust_tier"]
