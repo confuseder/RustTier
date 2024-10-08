@@ -11,7 +11,10 @@ libp2p = { version = "0.54.1", features = [
     "tcp",
     "tokio",
     "yamux",
+    "quic",
 ] }
 libp2p-stream = "0.2.0-alpha"
 tokio = { version = "1.39.3", features = ["full"] }
 rand = "0.8.5"
+tun-rs = { version = "1.3.6", features = ["async"] }
+pnet = "0.35.0"
