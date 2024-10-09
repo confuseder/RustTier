@@ -182,15 +182,13 @@ async fn recv(
     }
 }
 
-async fn send(mut stream: Stream, message: &[u8]) -> io::Result<()> {
+async fn send(stream: &mut Stream, message: &[u8]) -> io::Result<()> {
     stream.write_all(message).await?;
-    stream.close().await?;
-
     Ok(())
 }
 
 async fn send_by_id(peer_id: PeerId, message: &[u8], mut control: libp2p_stream::Control) {
-    let stream = match control.open_stream(peer_id, STREAM_PROTOCOL).await {
+    let mut stream = match control.open_stream(peer_id, STREAM_PROTOCOL).await {
         Ok(s) => s,
         Err(e @ libp2p_stream::OpenStreamError::UnsupportedProtocol(_)) => {
             println!("Peer do not support stream protocol: {:?}", e);
@@ -202,7 +200,7 @@ async fn send_by_id(peer_id: PeerId, message: &[u8], mut control: libp2p_stream:
         }
     };
 
-    match send(stream, message).await {
+    match send(&mut stream, message).await {
         Ok(()) => println!("Send to peer by id!"),
         Err(e) => println!("Error when send to peer => {e}"),
     };
@@ -210,6 +208,18 @@ async fn send_by_id(peer_id: PeerId, message: &[u8], mut control: libp2p_stream:
 
 async fn handler(peer: PeerId, mut control: libp2p_stream::Control, device: Arc<AsyncDevice>) {
     let mut buffer = vec![0; 1500];
+
+    let mut stream = match control.open_stream(peer, STREAM_PROTOCOL).await {
+        Ok(s) => s,
+        Err(e @ libp2p_stream::OpenStreamError::UnsupportedProtocol(_)) => {
+            println!("Peer do not support stream protocol: {:?}", e);
+            return;
+        }
+        Err(e) => {
+            println!("Error in handler: {:?}", e);
+            return;
+        }
+    };
 
     loop {
         let len = match device.recv(&mut buffer).await {
@@ -226,19 +236,7 @@ async fn handler(peer: PeerId, mut control: libp2p_stream::Control, device: Arc<
             }
         };
 
-        let stream = match control.open_stream(peer, STREAM_PROTOCOL).await {
-            Ok(s) => s,
-            Err(e @ libp2p_stream::OpenStreamError::UnsupportedProtocol(_)) => {
-                println!("Peer do not support stream protocol: {:?}", e);
-                return;
-            }
-            Err(e) => {
-                println!("Error in handler: {:?}", e);
-                return;
-            }
-        };
-
-        if let Err(e) = send(stream, &buffer[..len]).await {
+        if let Err(e) = send(&mut stream, &buffer[..len]).await {
             println!("Fail in send process: {:?}", e);
         }
 
