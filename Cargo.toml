@@ -1,6 +1,9 @@
-[package]
-name = "RustTier"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = ["rust_tier", "rust_tier_cli", "rust_tier_daemon"]
+resolver = "3"
 
-[dependencies]
+[workspace.dependencies]
+tokio = { version = "1.44.2", features = ["full"] }
+
+[workspace.workspace-dependencies]
+rust_tier = { path = "./rust_tier" }
